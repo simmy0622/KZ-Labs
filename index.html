@@ -7,11 +7,12 @@
   <meta name="description" content="KZ Labs｜可落地的智能系统实验室" />
   <style>
     :root{
-      --bamboo:#1FBF7A;       /* 翠竹绿 */
-      --black:#0A0A0A;
-      --gray:#6B6B6B;
+      --bamboo:#1FBF7A;        /* 翠竹绿（主题色） */
+      --ink:#0A0A0A;           /* 黑心：更沉一点 */
+      --muted:#6E6E6E;
       --bg:#FFFFFF;
-      --max:1120px;
+      --max:1160px;
+      --radius:22px;
     }
 
     *{box-sizing:border-box}
@@ -19,92 +20,122 @@
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Display","SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei", Arial, sans-serif;
-      background:var(--bg);
-      color:var(--black);
-      overflow:hidden; /* 交给 deck 滚动 */
+      background: var(--bg);
+      color: var(--ink);
+      overflow:hidden; /* 翻页容器滚动 */
     }
 
-    /* 顶部：无边界、轻量 */
+    /* 顶部栏：极轻、现代 SaaS */
     .topbar{
       position:fixed;
       inset:0 0 auto 0;
-      height:64px;
-      z-index:50;
+      height:72px;
+      z-index:60;
       display:flex;
       align-items:center;
-      background:rgba(255,255,255,.86);
-      backdrop-filter:saturate(160%) blur(12px);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(0,0,0,.06);
     }
     .topbar .inner{
-      width:min(var(--max), calc(100% - 40px));
+      width:min(var(--max), calc(100% - 44px));
       margin:0 auto;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      gap:18px;
     }
     .brand{
       display:flex;
       align-items:baseline;
       gap:10px;
-      font-weight:800;
-      letter-spacing:-.3px;
+      font-weight:900;
+      letter-spacing:-.04em;
       user-select:none;
+      font-size:18px;
     }
     .brand .kz{color:var(--bamboo)}
-    .brand .labs{color:var(--black)}
+    .brand .labs{color:var(--ink)}
     .nav{
       display:flex;
       align-items:center;
-      gap:14px;
+      gap:10px;
       font-size:13px;
-      color:var(--gray);
+      color: rgba(0,0,0,.55);
       white-space:nowrap;
     }
     .nav a{
-      color:inherit;
       text-decoration:none;
-      padding:10px 10px;
+      color:inherit;
+      padding:10px 12px;
       border-radius:999px;
-      transition:color .2s ease, background .2s ease;
+      transition: background .18s ease, color .18s ease;
     }
-    .nav a:hover{color:var(--black); background:rgba(31,191,122,.10)}
-    .nav a.active{color:var(--black); background:rgba(31,191,122,.14)}
-    .hint{display:none; font-size:12px; color:var(--gray)}
+    .nav a:hover{ background: rgba(31,191,122,.10); color: var(--ink); }
+    .nav a.active{ background: rgba(31,191,122,.14); color: var(--ink); }
+    .hint{display:none;font-size:12px;color:rgba(0,0,0,.55)}
     @media (max-width:860px){
       .nav{display:none}
       .hint{display:block}
     }
 
-    /* 全站：无边界翻页 */
+    /* 主容器：分页滚动 + 淡入翻页 */
     .deck{
       position:fixed;
-      inset:64px 0 0 0;
+      inset:72px 0 0 0;
       overflow-y:auto;
       scroll-snap-type:y mandatory;
       scroll-behavior:smooth;
-      background:var(--bg);
+      background: var(--bg);
     }
 
     section.page{
-      min-height:calc(100vh - 64px);
+      min-height:calc(100vh - 72px);
       scroll-snap-align:start;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:64px 20px;
+      padding: 110px 22px; /* 松 */
       position:relative;
+      isolation:isolate;
+    }
+    @media (max-width:520px){
+      section.page{padding: 86px 18px;}
     }
 
-    /* 内容：大字 + 与背景融为一体 */
+    /* 每页不同但统一的“自然融入背景” */
+    section.page::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+    }
+    /* 首页：淡淡竹绿光晕 */
+    #p1::before{
+      background:
+        radial-gradient(900px 520px at 18% 24%, rgba(31,191,122,.13), transparent 62%),
+        radial-gradient(760px 520px at 84% 72%, rgba(31,191,122,.08), transparent 60%);
+    }
+    /* 产品：更克制 */
+    #p2::before{
+      background:
+        radial-gradient(860px 520px at 62% 28%, rgba(31,191,122,.10), transparent 62%);
+    }
+    /* 关于：更“清洁” */
+    #p3::before{
+      background:
+        radial-gradient(900px 520px at 22% 72%, rgba(31,191,122,.09), transparent 60%);
+    }
+
+    /* 内容：大字 + 松散排版 + 淡入 */
     .wrap{
       width:min(var(--max), 100%);
       display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap:48px;
-      align-items:start;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 70px; /* 松 */
       opacity:0;
-      transform: translateY(14px);
+      transform: translateY(18px);
       transition: opacity .7s ease, transform .7s ease;
       will-change: opacity, transform;
     }
@@ -113,186 +144,207 @@
       transform: translateY(0);
     }
     @media (max-width:980px){
-      .wrap{grid-template-columns:1fr; gap:22px}
+      .wrap{grid-template-columns:1fr; gap: 26px;}
     }
 
     .kicker{
       font-size:12px;
-      color:var(--gray);
       letter-spacing:.18em;
       text-transform:uppercase;
-      margin-bottom:14px;
+      color: rgba(0,0,0,.55);
+      margin-bottom:16px;
     }
 
     h1,h2{
-      margin:0 0 14px 0;
+      margin:0 0 18px 0;
       line-height:1.02;
-      letter-spacing:-.04em;
-      font-weight:900;
+      letter-spacing:-.05em;
+      font-weight:950;
     }
-    h1{font-size:72px}
-    h2{font-size:52px}
-    @media (max-width:520px){
-      h1{font-size:46px}
-      h2{font-size:38px}
+    h1{font-size:78px;}
+    h2{font-size:56px;}
+    @media (max-width:560px){
+      h1{font-size:48px;}
+      h2{font-size:38px;}
     }
 
     p{
-      margin:0 0 12px 0;
-      color:var(--gray);
-      font-size:16px;
-      line-height:1.75;
+      margin:0 0 14px 0;
+      color: var(--muted);
+      font-size:16.5px;
+      line-height:1.85;
       max-width:70ch;
     }
-
     .lead{
-      color:var(--black);
-      font-size:18px;
+      color: var(--ink);
+      font-size:19px;
       line-height:1.7;
       margin-top:6px;
+      letter-spacing:-.01em;
     }
 
-    /* 轻量分隔线（无边界但有节） */
-    .line{
-      height:1px;
-      width:100%;
-      background:rgba(0,0,0,.08);
-      margin:18px 0;
+    .accent{color:var(--bamboo); font-weight:950;}
+
+    /* 现代 SaaS 风格：轻面板（不是卡片堆） */
+    .panel{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.72);
+      backdrop-filter: blur(10px) saturate(140%);
+      padding: 22px 22px;
     }
 
-    /* 产品列表（无卡片，无边框） */
-    .plist{display:flex; flex-direction:column; gap:16px; margin-top:18px}
-    .prow{
+    /* 产品区：松、清晰、记忆点是 KZ 与翠竹绿 */
+    .products{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      margin-top:18px;
+    }
+    .prod{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:18px;
-      padding:14px 0;
-      border-bottom:1px solid rgba(0,0,0,.08);
+      gap:16px;
+      padding: 16px 6px;
+      border-bottom: 1px solid rgba(0,0,0,.07);
     }
-    .prow:last-child{border-bottom:none}
-    .pname{
-      font-weight:900;
+    .prod:last-child{border-bottom:none}
+    .prod .name{
       font-size:18px;
+      font-weight:950;
       letter-spacing:-.02em;
-      color:var(--black);
+      color: var(--ink);
+      margin:0;
     }
-    .pdesc{margin-top:6px; font-size:14px; color:var(--gray); line-height:1.7}
-    .meta{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin-top:10px;
-      font-size:12px;
-      color:rgba(0,0,0,.55);
+    .prod .desc{
+      margin-top:6px;
+      font-size:14px;
+      color: rgba(0,0,0,.55);
+      line-height:1.75;
+      max-width:52ch;
     }
-    .pill{
+
+    .badge{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:6px 10px;
+      padding: 6px 10px;
       border-radius:999px;
-      background:rgba(31,191,122,.12);
-      color:#0c4b33;
-      font-weight:800;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.02em;
+      background: rgba(31,191,122,.14);
+      color: #0C4B33;
+      white-space:nowrap;
     }
-    .pill.mute{
-      background:rgba(0,0,0,.05);
-      color:rgba(0,0,0,.55);
-      font-weight:800;
+    .badge.mute{
+      background: rgba(0,0,0,.06);
+      color: rgba(0,0,0,.55);
     }
 
-    /* 链接：像 Mailya 那样“→” */
+    /* 链接：极简箭头（参考 Mailya 语感） */
     .link{
       display:inline-flex;
       align-items:center;
       gap:10px;
       text-decoration:none;
-      color:var(--black);
-      font-weight:900;
-      font-size:14px;
+      font-weight:950;
+      color: var(--ink);
       white-space:nowrap;
-      padding:10px 0;
-      transition: color .2s ease, transform .2s ease;
+      padding: 10px 0;
+      transition: transform .18s ease, color .18s ease;
     }
     .link .arrow{color:var(--bamboo)}
-    .link:hover{color:var(--bamboo); transform: translateY(-1px)}
+    .link:hover{color:var(--bamboo); transform: translateY(-1px);}
 
-    /* 右侧：轻信息块（仍然无边界） */
-    .aside{
-      padding-top:8px;
+    /* 右侧：一条“记忆钉子” */
+    .memory{
+      padding: 6px 0 0 0;
     }
-    .aside h3{
-      margin:0 0 10px 0;
-      font-size:13px;
-      letter-spacing:.12em;
+    .memory h3{
+      margin:0 0 12px 0;
+      font-size:12px;
+      letter-spacing:.18em;
       text-transform:uppercase;
-      color:rgba(0,0,0,.55);
+      color: rgba(0,0,0,.55);
     }
-    .aside ul{
+    .memory .big{
+      font-size:22px;
+      font-weight:950;
+      letter-spacing:-.03em;
+      line-height:1.3;
       margin:0;
-      padding-left:18px;
-      color:var(--gray);
-      line-height:1.85;
-      font-size:14px;
+      color: var(--ink);
     }
-    .aside .quote{
-      margin-top:18px;
-      color:var(--black);
-      font-weight:900;
-      letter-spacing:-.02em;
-      line-height:1.35;
-      font-size:18px;
+    .memory .big .dot{
+      display:inline-block;
+      width:10px;height:10px;border-radius:999px;
+      background: var(--bamboo);
+      margin: 0 8px 0 0;
+      vertical-align:middle;
+      box-shadow: 0 0 0 6px rgba(31,191,122,.12);
     }
-    .aside .quote span{color:var(--bamboo)}
-    .aside small{display:block; margin-top:10px; color:rgba(0,0,0,.45); line-height:1.7}
+    .memory small{
+      display:block;
+      margin-top:10px;
+      color: rgba(0,0,0,.45);
+      line-height:1.75;
+      font-size:13px;
+    }
 
-    /* 圆点页码（非常轻） */
+    /* 轻页码 */
     .pager{
       position:fixed;
       right:16px;
       top:50%;
       transform:translateY(-50%);
-      z-index:60;
+      z-index:70;
       display:flex;
       flex-direction:column;
       gap:10px;
     }
     .pager button{
-      width:9px;height:9px;
-      border-radius:999px;
+      width:9px;height:9px;border-radius:999px;
       border:none;
-      background:rgba(0,0,0,.15);
-      padding:0;
+      background: rgba(0,0,0,.15);
       cursor:pointer;
+      padding:0;
       transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
     }
     .pager button:hover{transform:scale(1.2)}
     .pager button.on{
-      background:var(--bamboo);
-      box-shadow:0 0 0 5px rgba(31,191,122,.14);
+      background: var(--bamboo);
+      box-shadow: 0 0 0 6px rgba(31,191,122,.12);
     }
     @media (max-width:860px){ .pager{display:none} }
 
-    /* 底部轻提示 */
+    /* 页底提示 */
     .scrollTip{
       position:absolute;
       left:50%;
       bottom:18px;
       transform:translateX(-50%);
       font-size:12px;
-      color:rgba(0,0,0,.45);
+      color: rgba(0,0,0,.42);
       user-select:none;
       display:flex;
       align-items:center;
       gap:8px;
     }
     .kbd{
-      font-weight:900;
-      padding:2px 7px;
-      border-radius:8px;
-      background:rgba(0,0,0,.05);
-      color:rgba(0,0,0,.55);
+      font-weight:950;
+      padding:2px 8px;
+      border-radius:10px;
+      background: rgba(0,0,0,.05);
+      color: rgba(0,0,0,.58);
+    }
+
+    /* Footer（极轻） */
+    .footer{
+      margin-top:26px;
+      color: rgba(0,0,0,.42);
+      font-size:12px;
     }
   </style>
 </head>
@@ -307,9 +359,7 @@
       <nav class="nav" aria-label="站点导航">
         <a href="#p1" data-goto="0" class="active">首页</a>
         <a href="#p2" data-goto="1">产品</a>
-        <a href="#p3" data-goto="2">Mailya</a>
-        <a href="#p4" data-goto="3">Seeya</a>
-        <a href="#p5" data-goto="4">Querya</a>
+        <a href="#p3" data-goto="2">关于</a>
       </nav>
 
       <div class="hint">向下滚动翻页</div>
@@ -320,203 +370,126 @@
     <button data-goto="0" class="on" title="第1页"></button>
     <button data-goto="1" title="第2页"></button>
     <button data-goto="2" title="第3页"></button>
-    <button data-goto="3" title="第4页"></button>
-    <button data-goto="4" title="第5页"></button>
   </div>
 
   <main class="deck" id="deck">
-    <!-- Page 1 -->
+
+    <!-- Page 1: Home -->
     <section class="page" id="p1" data-index="0">
       <div class="wrap">
         <div>
-          <div class="kicker">APPLIED INTELLIGENCE</div>
-          <h1><span style="color:var(--bamboo)">KZ</span> Labs</h1>
-          <p class="lead">我们不做“聊天”。我们做系统。</p>
-          <p>把智能做成能被长期使用的产品。输入越混乱，输出越可交付。</p>
+          <div class="kicker">KZ LABS</div>
+          <h1><span class="accent">KZ</span> Labs</h1>
+          <p class="lead">把智能做成能被长期使用的系统。</p>
+          <p>不堆功能，不演示“酷”。我们只关心：输入越混乱，输出越可交付。</p>
 
-          <div class="line"></div>
-
-          <div class="plist" aria-label="产品预览">
-            <div class="prow">
-              <div>
-                <div class="pname">Mailya</div>
-                <div class="pdesc">你的专属员工，在邮箱里上班。</div>
-                <div class="meta"><span class="pill">已上线</span><span>执行</span></div>
-              </div>
-              <a class="link" href="http://www.mailya.asia/" target="_blank" rel="noopener">
-                访问官网 <span class="arrow">→</span>
-              </a>
-            </div>
-
-            <div class="prow">
-              <div>
-                <div class="pname">Seeya</div>
-                <div class="pdesc">让上下文“看得见”。</div>
-                <div class="meta"><span class="pill mute">comming soon</span><span>感知</span></div>
-              </div>
-              <span class="pill mute">comming soon</span>
-            </div>
-
-            <div class="prow">
-              <div>
-                <div class="pname">Querya</div>
-                <div class="pdesc">把思考变成结构。</div>
-                <div class="meta"><span class="pill mute">comming soon</span><span>思考</span></div>
-              </div>
-              <span class="pill mute">comming soon</span>
-            </div>
+          <div class="panel" style="margin-top:26px;">
+            <p style="margin:0;color:rgba(0,0,0,.62);font-size:14px;line-height:1.8;">
+              三个方向：<span class="accent">思考</span>、<span class="accent">感知</span>、<span class="accent">执行</span>。<br/>
+              先从一个入口开始，然后回到同一个闭环。
+            </p>
           </div>
         </div>
 
-        <aside class="aside">
-          <h3>原则</h3>
-          <ul>
-            <li>不堆功能，只打磨可用性</li>
-            <li>不解释太多，只交付结果</li>
-            <li>保持一致，长期生长</li>
-          </ul>
-
-          <div class="quote">黑白是结构，<span>翠竹绿</span>是生命。</div>
-          <small>向下滚动翻页。每一页都是一条清晰的陈述。</small>
+        <aside class="memory">
+          <h3>记忆点</h3>
+          <p class="big"><span class="dot"></span>翠竹绿 + KZ Labs</p>
+          <small>
+            黑白给结构，翠竹绿给生命。<br/>
+            官网只做两件事：<br/>
+            让你记住 <span class="accent">KZ</span>，并快速找到产品入口。
+          </small>
         </aside>
       </div>
 
       <div class="scrollTip"><span class="kbd">↓</span><span>向下滚动翻页</span><span class="kbd">PgDn</span></div>
     </section>
 
-    <!-- Page 2 -->
+    <!-- Page 2: Products (single page, not one per product) -->
     <section class="page" id="p2" data-index="1">
       <div class="wrap">
         <div>
           <div class="kicker">PRODUCTS</div>
-          <h2>三条线，一套内核</h2>
-          <p class="lead">思考 · 感知 · 执行</p>
-          <p>产品各自独立，但共享同一套底层能力：理解意图，组织上下文，输出可执行结果。</p>
+          <h2>产品</h2>
+          <p class="lead">独立产品，共享同一套底层能力。</p>
+          <p>我们不把产品写成故事。只给你入口、定位、状态。</p>
 
-          <div class="line"></div>
+          <div class="products panel">
+            <div class="prod">
+              <div>
+                <div class="name">Mailya <span class="badge">已上线</span></div>
+                <div class="desc">你的专属员工，在邮箱里上班。接收指令 → 执行 → 交付成果。</div>
+              </div>
+              <a class="link" href="http://www.mailya.asia/" target="_blank" rel="noopener">
+                访问官网 <span class="arrow">→</span>
+              </a>
+            </div>
 
-          <p style="margin:0;color:var(--black);font-weight:900;letter-spacing:-.02em">
-            进入方式很简单：
-          </p>
-          <div class="plist">
-            <div class="prow">
+            <div class="prod">
               <div>
-                <div class="pname">从“执行”开始：Mailya</div>
-                <div class="pdesc">发一封邮件，下达任务，坐等成果。</div>
+                <div class="name">Seeya <span class="badge mute">comming soon</span></div>
+                <div class="desc">让上下文“看得见”。把信息关系与行动路径变成可浏览的界面。</div>
               </div>
-              <a class="link" href="http://www.mailya.asia/" target="_blank" rel="noopener">打开 <span class="arrow">→</span></a>
+              <span class="badge mute">comming soon</span>
             </div>
-            <div class="prow">
+
+            <div class="prod">
               <div>
-                <div class="pname">从“感知”开始：Seeya</div>
-                <div class="pdesc">把信息关系与行动路径变成可浏览的界面。</div>
+                <div class="name">Querya <span class="badge mute">comming soon</span></div>
+                <div class="desc">把思考变成结构。用更好的约束与框架，产出更好的决策。</div>
               </div>
-              <span class="pill mute">comming soon</span>
-            </div>
-            <div class="prow">
-              <div>
-                <div class="pname">从“思考”开始：Querya</div>
-                <div class="pdesc">用更好的约束与框架，产出更好的决策。</div>
-              </div>
-              <span class="pill mute">comming soon</span>
+              <span class="badge mute">comming soon</span>
             </div>
           </div>
         </div>
 
-        <aside class="aside">
-          <h3>我们不做什么</h3>
-          <ul>
-            <li>不做“炫技式 demo”</li>
-            <li>不做“万能 AI”口号</li>
-            <li>不把用户训练成提示词工程师</li>
-          </ul>
-          <div class="quote">你只需要下达任务。<br/>系统负责把事做完。</div>
+        <aside class="memory">
+          <h3>一句话</h3>
+          <p class="big">不是工具。不是助手。<br/><span class="accent">是系统。</span></p>
+          <small>
+            现代 SaaS 官网的节奏：留白、克制、直给。<br/>
+            你现在需要的不是“更多页面”，而是“更强一致性”。
+          </small>
         </aside>
       </div>
     </section>
 
-    <!-- Page 3 -->
+    <!-- Page 3: About -->
     <section class="page" id="p3" data-index="2">
       <div class="wrap">
         <div>
-          <div class="kicker">MAILYA</div>
-          <h2>你的专属员工，在邮箱里上班。</h2>
-          <p class="lead">不是聊天。不是陪你想。是接收指令 → 执行 → 交付成果。</p>
-          <p>Mailya 面向真实工作流：收件箱不是信息流，而是待办队列。你发邮件交代任务，它把结果发回来。</p>
+          <div class="kicker">ABOUT</div>
+          <h2>关于 KZ Labs</h2>
+          <p class="lead">我们构建可落地的智能系统。</p>
+          <p>KZ Labs 关注可复用、可维护、可交付的产品形态。我们更在意长期一致性，而不是短期热闹。</p>
 
-          <div class="line"></div>
-
-          <a class="link" href="http://www.mailya.asia/" target="_blank" rel="noopener">
-            访问 Mailya 官网 <span class="arrow">→</span>
-          </a>
-        </div>
-
-        <aside class="aside">
-          <h3>关键词</h3>
-          <ul>
-            <li>一次指令</li>
-            <li>自动对齐缺失信息</li>
-            <li>输出可交付文件</li>
-          </ul>
-          <div class="quote">Mailya 不讨论。<br/><span>Mailya 交付。</span></div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Page 4 -->
-    <section class="page" id="p4" data-index="3">
-      <div class="wrap">
-        <div>
-          <div class="kicker">SEEYA</div>
-          <h2>让上下文“看得见”。</h2>
-          <p class="lead">把信息从“散落”变成“结构”，把结构变成下一步行动入口。</p>
-          <p>Seeya 是系统的可视化界面层：你看到的不只是内容，而是关系、优先级与路径。</p>
-
-          <div class="line"></div>
-
-          <span class="pill mute">comming soon</span>
-        </div>
-
-        <aside class="aside">
-          <h3>方向</h3>
-          <ul>
-            <li>结构化浏览</li>
-            <li>上下文对齐</li>
-            <li>可执行入口</li>
-          </ul>
-          <div class="quote">先看清，再动手。</div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Page 5 -->
-    <section class="page" id="p5" data-index="4">
-      <div class="wrap">
-        <div>
-          <div class="kicker">QUERYA</div>
-          <h2>把思考变成结构。</h2>
-          <p class="lead">不提供“答案的幻觉”。提供更好的问题、更好的约束、更好的决策框架。</p>
-          <p>Querya 是一个结构化思考系统：帮助你更快定位关键变量、拆解目标、做出可执行决定。</p>
-
-          <div class="line"></div>
-
-          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center">
-            <span class="pill mute">comming soon</span>
-            <a class="link" href="#p1" data-goto="0">回到首页 <span class="arrow">→</span></a>
+          <div class="panel" style="margin-top:26px;">
+            <p style="margin:0;color:rgba(0,0,0,.62);font-size:14px;line-height:1.9;">
+              合作或了解产品，请从 Mailya 开始：<br/>
+              <a class="link" href="http://www.mailya.asia/" target="_blank" rel="noopener" style="padding:8px 0;">
+                打开 Mailya <span class="arrow">→</span>
+              </a>
+            </p>
           </div>
 
-          <div style="margin-top:34px; font-size:12px; color:rgba(0,0,0,.45);">
-            © <span style="color:var(--bamboo); font-weight:900">KZ</span> Labs
-          </div>
+          <div class="footer">© <span class="accent" style="font-weight:950;">KZ</span> Labs</div>
         </div>
 
-        <aside class="aside">
-          <h3>一句话</h3>
-          <div class="quote">从思考，到看见，到交付。<br/>三条线，最终合一。</div>
-          <small>如果你现在就要把事做完，从 Mailya 入口开始。</small>
+        <aside class="memory">
+          <h3>视觉规则</h3>
+          <ul style="margin:0;padding-left:18px;color:var(--muted);line-height:1.9;font-size:14px;">
+            <li>大字、松、少元素</li>
+            <li>黑白为底，翠竹绿只做强调</li>
+            <li>淡入翻页，不做炫酷动效</li>
+          </ul>
+          <small style="margin-top:12px;">
+            你要求的“黑心”只有一个：<span class="accent">翠竹绿 + KZ Labs</span>。<br/>
+            这版就是为此服务的。
+          </small>
         </aside>
       </div>
     </section>
+
   </main>
 
   <script>
@@ -526,7 +499,7 @@
       const navLinks = Array.from(document.querySelectorAll('.nav a'));
       const dots = Array.from(document.querySelectorAll('.pager button'));
 
-      // 淡入翻页：进入视口即激活（参考 Mailya 的“自然融入背景”感觉）
+      // 淡入翻页（参考 mailya 的“自然淡入”节奏）
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(e=>{
           if(!e.isIntersecting) return;
